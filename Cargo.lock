@@ -479,7 +479,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sightnet_fts"
+name = "sightnet_core"
 version = "0.1.0"
 dependencies = [
  "criterion",
