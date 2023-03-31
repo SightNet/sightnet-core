@@ -1,0 +1,20 @@
+[package]
+name = "sightnet_fts"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lazy_static = "1.4.0"
+rust-stemmers = "1.2.0"
+hashbrown = "0.13.2"
+
+[dev-dependencies]
+criterion = "0.4.0"
+
+[lib]
+name = "sightnet_fts"
+path = "src/lib.rs"
+
+[[bench]]
+name = "benchmark"
+harness = false
