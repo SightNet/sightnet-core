@@ -1,6 +1,11 @@
-use std::fs;
-use std::ptr::write;
+extern crate fs2;
+
+use std::io::{Read, Write};
 use std::rc::Rc;
+use std::time::Duration;
+use std::{fs, io, thread};
+
+use fs2::FileExt;
 
 use crate::collection::Collection;
 use crate::document::Document;
@@ -57,7 +62,7 @@ impl File {
         File::write(bytes, val.as_str());
     }
 
-    pub fn save(collection: &Collection, file_name: &'static str) {
+    pub fn save(collection: &Collection, file_name: &'static str) -> Result<(), io::Error> {
         let mut bytes = Vec::new();
 
         for i in collection.fields.iter() {
@@ -86,7 +91,13 @@ impl File {
             File::write(&mut bytes, "");
         }
 
-        fs::write(file_name, &bytes).expect("You should have rights to write to this file.");
+        let mut file = fs::File::open(file_name)?;
+
+        file.lock_exclusive()?;
+        file.write_all(&bytes)?;
+        file.unlock()?;
+
+        Ok(())
     }
 
     fn next(bytes: &mut Vec<u8>, i: &mut i32) -> String {
@@ -112,9 +123,20 @@ impl File {
         return (token_type_parsed, token_value);
     }
 
-    pub fn load(file_name: &'static str) -> Collection {
+    pub fn load(file_name: &'static str) -> Result<Collection, io::Error> {
         let mut collection = Collection::default();
-        let mut bytes = fs::read(file_name).expect(&*format!("There is no file: {}.", file_name));
+        let mut bytes: Vec<u8> = Vec::new();
+
+        {
+            let mut file = fs::File::open(file_name)?;
+
+            while file.try_lock_exclusive().is_err() {
+                file.read(bytes.as_mut_slice())?;
+                file.unlock()?;
+                thread::sleep(Duration::from_millis(1000))
+            }
+        }
+
         let mut i = 0;
 
         let mut temp_field_name: Option<String> = None;
@@ -191,6 +213,6 @@ impl File {
             }
         }
 
-        collection
+        Ok(collection)
     }
 }
