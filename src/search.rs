@@ -4,17 +4,32 @@ use std::rc::Rc;
 use hashbrown::HashMap;
 
 use crate::collection::Collection;
-use crate::field::{Field, FieldType};
+use crate::field::Field;
 use crate::ranker::Ranker;
 use crate::tokenizer::tokenize;
 
 impl Collection {
-    pub fn search(&self, query: &str, fields: Vec<String>, max: Option<usize>) -> Vec<(i32, f32)> {
+    pub fn search(
+        &self,
+        query: &str,
+        fields: Option<Vec<String>>,
+        max: Option<usize>,
+    ) -> Vec<(i32, f32)> {
+        let max = max.unwrap_or(10);
+
         let terms = tokenize(query);
-        let fields: Vec<Rc<RefCell<Field>>> = fields
-            .iter()
-            .map(|x| Rc::clone(self.get_field(x).unwrap()))
-            .collect();
+
+        let fields = match fields {
+            Some(fields) => {
+                let fields: Vec<Rc<RefCell<Field>>> = fields
+                    .iter()
+                    .map(|x| Rc::clone(self.get_field(x).unwrap()))
+                    .collect();
+
+                fields
+            }
+            None => self.fields.clone(),
+        };
 
         let mut docs: HashMap<i32, f32> = HashMap::new();
 
@@ -32,7 +47,7 @@ impl Collection {
         let mut sorted_docs: Vec<_> = docs.into_iter().collect();
         sorted_docs.sort_by(|x, y| y.1.total_cmp(&x.1));
 
-        if let Some(max) = max {
+        if sorted_docs.len() > max {
             return sorted_docs[0..max].to_vec();
         }
 
