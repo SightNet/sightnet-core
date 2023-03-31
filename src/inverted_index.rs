@@ -2,7 +2,7 @@ use hashbrown::HashMap;
 
 use crate::term::Term;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct InvertedIndex {
     pub field_name: String,
     index: HashMap<Term, Vec<i32>>,

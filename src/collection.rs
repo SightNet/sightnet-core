@@ -1,7 +1,3 @@
-use std::cell::RefCell;
-use std::collections::hash_map::{Iter, IterMut};
-use std::rc::Rc;
-
 use hashbrown::HashMap;
 
 use crate::document::Document;
@@ -10,7 +6,7 @@ use crate::inverted_index::InvertedIndex;
 
 pub struct Collection {
     pub documents: HashMap<i32, Document>,
-    pub fields: Vec<Rc<RefCell<Field>>>,
+    pub fields: Vec<Field>,
     last_index: i32,
 }
 
@@ -27,23 +23,28 @@ impl Collection {
         let name = name.to_string();
         let inverted_index = InvertedIndex::new(name.clone());
 
-        self.fields.push(Rc::new(RefCell::new(Field {
+        self.fields.push(Field {
             name,
             field_type,
             inverted_index,
-        })));
+        });
     }
 
     pub fn commit(&mut self) {
         for i in 0..self.fields.len() {
-            let field = Rc::clone(&self.fields[i]);
+            for j in i..self.len() {
+                let tokens;
 
-            for (id, doc) in self.iter_mut() {
-                let field_value = doc.process_field(field.borrow().name.as_str());
-                let tokens = field_value.unwrap().value_tokens.as_ref().unwrap();
+                {
+                    let doc = self.documents.get_mut(&(j as i32)).unwrap();
+                    let field_value = doc.process_field(self.fields[i].name.as_str());
+                    tokens = field_value.unwrap().value_tokens.as_ref().unwrap().clone();
+                }
+
+                let field = &mut self.fields[i];
 
                 for token in tokens {
-                    field.borrow_mut().inverted_index.push(token.clone(), *id);
+                    field.inverted_index.push(token.clone(), j as i32);
                 }
             }
         }
@@ -66,8 +67,8 @@ impl Collection {
         self.documents.get(&id)
     }
 
-    pub fn get_field(&self, name: &String) -> Option<&Rc<RefCell<Field>>> {
-        self.fields.iter().find(|x| x.borrow().name == *name)
+    pub fn get_field(&self, name: &String) -> Option<&Field> {
+        self.fields.iter().find(|x| x.name == *name)
     }
 
     pub fn len(&self) -> usize {

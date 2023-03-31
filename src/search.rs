@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use hashbrown::HashMap;
 
 use crate::collection::Collection;
@@ -21,21 +18,19 @@ impl Collection {
 
         let fields = match fields {
             Some(fields) => {
-                let fields: Vec<Rc<RefCell<Field>>> = fields
-                    .iter()
-                    .map(|x| Rc::clone(self.get_field(x).unwrap()))
-                    .collect();
+                let fields: Vec<&Field> =
+                    fields.iter().map(|x| self.get_field(x).unwrap()).collect();
 
                 fields
             }
-            None => self.fields.clone(),
+            None => self.fields.iter().map(|x| x).collect(),
         };
 
         let mut docs: HashMap<i32, f32> = HashMap::new();
 
         for term in &terms {
             for field in &fields {
-                let ranks = Ranker::rank(term, &self, Rc::clone(field));
+                let ranks = Ranker::rank(term, &self, field);
 
                 for rank in &ranks {
                     let e = docs.entry(*rank.0);

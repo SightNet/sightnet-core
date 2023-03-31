@@ -1,5 +1,4 @@
 use crate::inverted_index::InvertedIndex;
-use crate::ranker::Ranker;
 use crate::term::Term;
 
 #[derive(Copy, Clone, Debug)]
@@ -81,7 +80,7 @@ impl PartialEq for FieldValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Field {
     pub name: String,
     pub field_type: FieldType,

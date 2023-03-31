@@ -1,7 +1,6 @@
 extern crate fs2;
 
 use std::io::{Read, Write};
-use std::rc::Rc;
 use std::time::Duration;
 use std::{fs, io, thread};
 
@@ -65,13 +64,11 @@ impl File {
     pub fn save(collection: &Collection, file_name: &'static str) -> Result<(), io::Error> {
         let mut bytes = Vec::new();
 
-        for i in collection.fields.iter() {
-            let field = Rc::clone(i);
-
+        for field in collection.fields.iter() {
             File::write_token_type(&mut bytes, TokenType::CollectionFieldName);
-            File::write_string(&mut bytes, &field.borrow().name);
+            File::write_string(&mut bytes, &field.name);
             File::write_token_type(&mut bytes, TokenType::CollectionFieldType);
-            File::write_field_type(&mut bytes, field.borrow().field_type);
+            File::write_field_type(&mut bytes, field.field_type);
         }
 
         for (id, doc) in collection.documents.iter() {
@@ -177,12 +174,10 @@ impl File {
                     let field_name = temp_field_name
                         .clone()
                         .expect("FieldName should be defined before FieldType!");
-                    let field = Rc::clone(
-                        collection
-                            .get_field(&field_name)
-                            .expect("Collection's fields should be defined before Documents!"),
-                    );
-                    let field_type = field.borrow().field_type;
+                    let field = collection
+                        .get_field(&field_name)
+                        .expect("Collection's fields should be defined before Documents!");
+                    let field_type = field.field_type;
 
                     let field_value: FieldValue = match field_type {
                         FieldType::Int => FieldValue {
