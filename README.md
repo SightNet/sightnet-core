@@ -27,9 +27,12 @@ pub fn main() {
 }
 ```
 ## Dictionary
+* Field - key-value pair with type
 * Document - Entry, Item, Row with fields(key-value)
 * Collection - Array of documents
 ## Supported Field Types
 * Int,
 * Bool,
 * String
+## ...
+##### After any changes, you should call function commit. It will update indexes. And you will search by new data.
