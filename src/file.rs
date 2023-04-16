@@ -127,16 +127,9 @@ impl File {
         {
             let mut file = fs::File::open(file_name)?;
 
-            loop {
-                if file.try_lock_exclusive().is_err() {
-                    thread::sleep(Duration::from_millis(1000));
-                    continue;
-                }
-
-                file.read_to_end(&mut bytes)?;
-                file.unlock()?;
-                break;
-            }
+            file.lock_exclusive()?;
+            file.read_to_end(&mut bytes)?;
+            file.unlock()?;
         }
 
         let mut i = 0;
