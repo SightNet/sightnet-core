@@ -88,7 +88,7 @@ impl File {
             File::write(&mut bytes, "");
         }
 
-        let mut file = fs::File::open(file_name)?;
+        let mut file = fs::File::create(file_name)?;
 
         file.lock_exclusive()?;
         file.write_all(&bytes)?;
