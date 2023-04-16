@@ -74,6 +74,33 @@ impl FieldValue {
     }
 }
 
+impl From<i32> for FieldValue {
+    fn from(value: i32) -> Self {
+        let mut fv = FieldValue::new();
+        fv.value_int = Some(value);
+
+        fv
+    }
+}
+
+impl From<bool> for FieldValue {
+    fn from(value: bool) -> Self {
+        let mut fv = FieldValue::new();
+        fv.value_bool = Some(value);
+
+        fv
+    }
+}
+
+impl From<String> for FieldValue {
+    fn from(value: String) -> Self {
+        let mut fv = FieldValue::new();
+        fv.value_string = Some(value);
+
+        fv
+    }
+}
+
 impl PartialEq for FieldValue {
     fn eq(&self, other: &FieldValue) -> bool {
         self.as_string() == other.as_string()
