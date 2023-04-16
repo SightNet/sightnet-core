@@ -75,17 +75,17 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
     group.bench_function("Search - 1 word", |b| {
         b.iter(|| {
-            collection.search("sample", vec![FIELD_NAME.to_string()], Some(5));
+            collection.search("sample", Some(vec![FIELD_NAME.to_string()]), Some(5));
         })
     });
     group.bench_function("Save", |b| {
         b.iter(|| {
-            File::save(&collection, "out.bin");
+            File::save(&collection, "out.bin").unwrap();
         })
     });
     group.bench_function("Load", |b| {
         b.iter(|| {
-            File::load("out.bin");
+            File::load("out.bin").unwrap();
         })
     });
 }
