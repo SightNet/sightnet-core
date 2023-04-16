@@ -61,7 +61,7 @@ impl File {
         File::write(bytes, val.as_str());
     }
 
-    pub fn save(collection: &Collection, file_name: &'static str) -> Result<(), io::Error> {
+    pub fn save(collection: &Collection, file_name: &str) -> Result<(), io::Error> {
         let mut bytes = Vec::new();
 
         for field in collection.fields.iter() {
@@ -120,17 +120,22 @@ impl File {
         return (token_type_parsed, token_value);
     }
 
-    pub fn load(file_name: &'static str) -> Result<Collection, io::Error> {
+    pub fn load(file_name: &str) -> Result<Collection, io::Error> {
         let mut collection = Collection::default();
         let mut bytes: Vec<u8> = Vec::new();
 
         {
             let mut file = fs::File::open(file_name)?;
 
-            while file.try_lock_exclusive().is_err() {
-                file.read(bytes.as_mut_slice())?;
+            loop {
+                if file.try_lock_exclusive().is_err() {
+                    thread::sleep(Duration::from_millis(1000));
+                    continue;
+                }
+
+                file.read_to_end(&mut bytes)?;
                 file.unlock()?;
-                thread::sleep(Duration::from_millis(1000))
+                break;
             }
         }
 
