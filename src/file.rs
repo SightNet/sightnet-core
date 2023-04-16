@@ -168,11 +168,6 @@ impl File {
                 }
                 TokenType::DocumentFieldsEnd => {
                     let id = temp_document_id.unwrap();
-
-                    if id > collection.last_index {
-                        collection.last_index = id + 1;
-                    }
-
                     collection.push(temp_document.clone().unwrap(), Some(id));
                 }
                 TokenType::DocumentFieldName => {
@@ -216,6 +211,7 @@ impl File {
             }
         }
 
+        collection.last_index = collection.len() as i32;
         Ok(collection)
     }
 }
