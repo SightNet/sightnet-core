@@ -1,6 +1,7 @@
 use sightnet_core::collection::Collection;
 use sightnet_core::document::Document;
 use sightnet_core::field::{FieldType, FieldValue};
+use sightnet_core::file::File;
 
 pub fn main() {
     let mut collection = Collection::default();
@@ -19,9 +20,10 @@ pub fn main() {
         field_value.value_string = Some(i.to_string());
 
         doc.push("title", field_value);
-        collection.push(doc);
+        collection.push(doc, None);
     }
 
     collection.commit();
     println!("{:#?}", collection.search("algebra", None, None));
+    File::save(&collection, "out.bin").unwrap();
 }

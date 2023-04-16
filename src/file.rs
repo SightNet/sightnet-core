@@ -167,10 +167,13 @@ impl File {
                     temp_document = Some(Document::new());
                 }
                 TokenType::DocumentFieldsEnd => {
-                    collection.push_custom_index(
-                        temp_document.clone().unwrap(),
-                        temp_document_id.unwrap(),
-                    );
+                    let id = temp_document_id.unwrap();
+
+                    if id > collection.last_index {
+                        collection.last_index = id + 1;
+                    }
+
+                    collection.push(temp_document.clone().unwrap(), Some(id));
                 }
                 TokenType::DocumentFieldName => {
                     temp_field_name = Some(val);

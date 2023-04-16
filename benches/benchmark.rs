@@ -52,7 +52,7 @@ fn load_sample_corpus<'a>() -> Collection {
         field_value.value_string = Some(line.to_string());
 
         document.push(*FIELD_NAME, field_value);
-        collection.push(document);
+        collection.push(document, None);
     }
 
     collection

@@ -7,7 +7,7 @@ use crate::inverted_index::InvertedIndex;
 pub struct Collection {
     pub documents: HashMap<i32, Document>,
     pub fields: Vec<Field>,
-    last_index: i32,
+    pub(crate) last_index: i32,
 }
 
 impl Collection {
@@ -50,17 +50,17 @@ impl Collection {
         }
     }
 
-    pub fn push(&mut self, document: Document) {
-        self.documents.insert(self.last_index, document);
-        self.last_index += 1;
-    }
+    pub fn push(&mut self, document: Document, index: Option<i32>) {
+        if let Some(index) = index {
+            if self.documents.get(&index).is_some() {
+                panic!("There is document with the same index: {}", index);
+            }
 
-    pub fn push_custom_index(&mut self, document: Document, index: i32) {
-        if self.documents.get(&index).is_some() {
-            panic!("There is document with the same index: {}", index);
+            self.documents.insert(index, document);
+        } else {
+            self.documents.insert(self.last_index, document);
+            self.last_index += 1;
         }
-
-        self.documents.insert(index, document);
     }
 
     pub fn get(&self, id: i32) -> Option<&Document> {
