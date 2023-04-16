@@ -21,7 +21,7 @@ impl FieldType {
 
 #[derive(Debug, Eq, Clone)]
 pub struct FieldValue {
-    pub value_int: Option<i32>,
+    pub value_int: Option<i64>,
     pub value_bool: Option<bool>,
     pub value_string: Option<String>,
     pub value_tokens: Option<Vec<Term>>,
@@ -37,13 +37,13 @@ impl FieldValue {
         }
     }
 
-    pub fn as_int(&self) -> Option<i32> {
+    pub fn as_int(&self) -> Option<i64> {
         if self.value_int.is_some() {
             return Some(self.value_int.unwrap());
         } else if self.value_bool.is_some() {
-            return Some(self.value_bool.unwrap() as i32);
+            return Some(self.value_bool.unwrap() as i64);
         } else if self.value_string.is_some() {
-            return Some(self.value_string.as_ref().unwrap().parse::<i32>().unwrap());
+            return Some(self.value_string.as_ref().unwrap().parse::<i64>().unwrap());
         }
 
         None
@@ -74,8 +74,8 @@ impl FieldValue {
     }
 }
 
-impl From<i32> for FieldValue {
-    fn from(value: i32) -> Self {
+impl From<i64> for FieldValue {
+    fn from(value: i64) -> Self {
         let mut fv = FieldValue::new();
         fv.value_int = Some(value);
 

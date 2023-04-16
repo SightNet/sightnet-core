@@ -177,7 +177,7 @@ impl File {
 
                     let field_value: FieldValue = match field_type {
                         FieldType::Int => FieldValue {
-                            value_int: Some(val.parse::<i32>().unwrap()),
+                            value_int: Some(val.parse::<i64>().unwrap()),
                             value_bool: None,
                             value_string: None,
                             value_tokens: None,
