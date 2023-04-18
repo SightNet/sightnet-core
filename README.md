@@ -1,4 +1,4 @@
-# A fast search engine
+# Search engine(like typesense/elasticsearch)
 ## Example 
 ###### (src/example.rs)
 ```rust
@@ -14,12 +14,8 @@ pub fn main() {
 
     for i in corpus {
         let mut doc = Document::new();
-        let mut field_value = FieldValue::new();
-
-        field_value.value_string = Some(i.to_string());
-
-        doc.push("title", field_value);
-        collection.push(doc);
+        doc.push("title", FieldValue::from(i.to_string()));
+        collection.push(doc, None);
     }
 
     collection.commit();
@@ -27,12 +23,18 @@ pub fn main() {
 }
 ```
 ## Dictionary
-* Field - key-value pair with type
-* Document - Entry, Item, Row with fields(key-value)
+* Field - struct with name, value and pair type
+* Document - Entry/Item/Row with fields
 * Collection - Array of documents
 ## Supported Field Types
-* Int,
-* Bool,
+* Int
+* Bool
 * String
+## TO:DO
+[ ] Create http server(salvo.rs) for lib
+[ ] Separate lib folder and server
+[ ] Decrease saved file size
+[ ] Add additional checks in file saver & loader
+
 ## ...
 ##### After any changes, you should call function commit. It will update indexes. And you will search by new data.
