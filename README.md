@@ -31,10 +31,10 @@ pub fn main() {
 * Bool
 * String
 ## TO:DO
-[ ] Create http server(salvo.rs) for lib
-[ ] Separate lib folder and server
-[ ] Decrease saved file size
-[ ] Add additional checks in file saver & loader
+- [ ] Create http server(salvo.rs) for lib
+- [ ] Decrease saved file size
+- [ ] Add additional checks in file saver & loader
+- [ ] Write docs
 
 ## ...
 ##### After any changes, you should call function commit. It will update indexes. And you will search by new data.
