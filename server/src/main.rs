@@ -21,26 +21,6 @@ mod routes;
 mod api_error;
 mod api_result;
 
-/*async fn collection_filter(req: &mut Request, _: &mut PathState) -> bool {
-    let id = req.param::<String>("id");
-
-    if id.is_none() {
-        // error(res, "You haven't provided id.");
-        return false;
-    }
-
-    let id = id.unwrap();
-    let state = STATE.lock().unwrap();
-    let collection = state.collections.get_key_value(id.as_str());
-
-    if collection.is_none() {
-        // error(res, "There isn't collection with id.");
-        return false;
-    }
-
-    return true;
-}*/
-
 #[tokio::main]
 async fn main() {
     let collection_router =

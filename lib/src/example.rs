@@ -1,4 +1,5 @@
 use std::fs;
+
 use sightnet_core::collection::Collection;
 use sightnet_core::document::Document;
 use sightnet_core::field::{FieldType, FieldValue};

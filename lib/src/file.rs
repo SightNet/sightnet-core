@@ -1,13 +1,12 @@
 extern crate fs2;
 
-use std::{fs, io, thread};
+use std::{fs, io};
 use std::io::{Read, Write};
 
 use bincode::config;
 use fs2::FileExt;
 
 use crate::collection::Collection;
-use crate::field::{FieldType, FieldValue};
 
 pub struct File {}
 

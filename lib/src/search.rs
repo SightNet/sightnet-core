@@ -24,14 +24,14 @@ impl Collection {
 
                 fields
             }
-            None => self.fields.iter().map(|x| x).collect(),
+            None => self.fields.iter().collect(),
         };
 
         let mut docs: HashMap<i32, f32> = HashMap::new();
 
         for term in &terms {
             for field in &fields {
-                let ranks = Ranker::rank(term, strict, &self, field);
+                let ranks = Ranker::rank(term, strict, self, field);
 
                 for rank in &ranks {
                     let e = docs.entry(*rank.0);

@@ -68,7 +68,7 @@ impl Ranker {
         ranks
     }
 
-    pub fn rank_int(term: &Term, strict: bool, collection: &Collection, field: &Field) -> HashMap<i32, f32> {
+    pub fn rank_int(term: &Term, _strict: bool, collection: &Collection, field: &Field) -> HashMap<i32, f32> {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {
@@ -82,7 +82,7 @@ impl Ranker {
         ranks
     }
 
-    pub fn rank_bool(term: &Term, strict: bool, collection: &Collection, field: &Field) -> HashMap<i32, f32> {
+    pub fn rank_bool(term: &Term, _strict: bool, collection: &Collection, field: &Field) -> HashMap<i32, f32> {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {

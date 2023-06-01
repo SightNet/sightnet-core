@@ -35,6 +35,20 @@ pub async fn get_collection(id: String) -> Result<Arc<Mutex<Collection>>, ApiErr
     Ok(collection.1.clone())
 }
 
+pub async fn get_is_strict(req: &mut Request) -> Result<bool, ApiError> {
+    let is_strict = req.query::<bool>("strict");
+
+    if is_strict.is_none() {
+        return Ok(false);
+    }
+
+    Ok(is_strict.unwrap())
+}
+
+pub async fn get_max(req: &mut Request) -> Option<usize> {
+    req.param::<usize>("max")
+}
+
 #[handler]
 pub async fn info(req: &mut Request) -> Result<ApiResult, ApiError> {
     let id = get_collection_id(req).await?;

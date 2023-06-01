@@ -1,8 +1,10 @@
 use std::fmt;
+use std::str::FromStr;
+
+use bincode::{Decode, Encode};
+
 use crate::inverted_index::InvertedIndex;
 use crate::term::Term;
-use std::str::FromStr;
-use bincode::{Encode, Decode};
 
 #[derive(Copy, Clone, Debug, Encode, Decode)]
 pub enum FieldType {
@@ -97,6 +99,12 @@ impl FieldValue {
         }
 
         None
+    }
+}
+
+impl Default for FieldValue {
+    fn default() -> Self {
+        FieldValue::new()
     }
 }
 

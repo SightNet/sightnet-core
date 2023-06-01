@@ -1,5 +1,6 @@
 use std::collections::hash_map::{Iter, IterMut};
 use std::collections::HashMap;
+
 use bincode::{Decode, Encode};
 
 use crate::document::Document;
@@ -85,8 +86,14 @@ impl Collection {
         self.fields.iter().find(|x| x.name == *name)
     }
 
+
+    pub fn is_empty(&self) -> bool {
+        self.documents.is_empty()
+    }
+
+
     pub fn len(&self) -> usize {
-        return self.documents.len();
+        self.documents.len()
     }
 
     pub fn iter(&self) -> Iter<'_, i32, Document> {
@@ -104,5 +111,11 @@ impl Collection {
 
     pub fn save(&self) -> Result<(), std::io::Error> {
         File::save(self, self.file_name.clone().unwrap().as_str())
+    }
+}
+
+impl Default for Collection {
+    fn default() -> Self {
+        Collection::new()
     }
 }

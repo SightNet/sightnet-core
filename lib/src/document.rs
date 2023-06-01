@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+
+use bincode::{Decode, Encode};
+
 use crate::field::FieldValue;
 use crate::tokenizer::tokenize;
-
-use bincode::{Encode, Decode};
 
 #[derive(Debug, Eq, Clone, Encode, Decode)]
 pub struct Document {
@@ -34,19 +35,25 @@ impl Document {
         self.fields.get_mut(field_name)
     }
 
-   pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
-    if let Some(field_value) = self.get_mut(field_name) {
-        if let Some(str_value) = field_value.as_string() {
-            let tokens = tokenize(str_value.as_str());
-            field_value.value_tokens = Some(tokens);
-            Some(field_value)
+    pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
+        if let Some(field_value) = self.get_mut(field_name) {
+            if let Some(str_value) = field_value.as_string() {
+                let tokens = tokenize(str_value.as_str());
+                field_value.value_tokens = Some(tokens);
+                Some(field_value)
+            } else {
+                None
+            }
         } else {
             None
         }
-    } else {
-        None
     }
 }
+
+impl Default for Document {
+    fn default() -> Self {
+        Document::new()
+    }
 }
 
 impl PartialEq for Document {

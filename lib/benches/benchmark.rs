@@ -1,7 +1,14 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use lazy_static::lazy_static;
 use std::env::args;
 use std::fs;
+
+use criterion::{Criterion, criterion_group, criterion_main};
+use lazy_static::lazy_static;
+
+use crate::collection::Collection;
+use crate::document::Document;
+use crate::field::{FieldType, FieldValue};
+use crate::file::File;
+use crate::tokenizer::tokenize;
 
 #[path = "../src/collection.rs"]
 mod collection;
@@ -29,12 +36,6 @@ mod search;
 
 #[path = "../src/tokenizer.rs"]
 mod tokenizer;
-
-use crate::collection::Collection;
-use crate::document::Document;
-use crate::field::{FieldType, FieldValue};
-use crate::file::File;
-use crate::tokenizer::tokenize;
 
 lazy_static! {
     static ref CORPUS: String =
