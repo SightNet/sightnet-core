@@ -1,5 +1,7 @@
+use std::fmt;
 use crate::inverted_index::InvertedIndex;
 use crate::term::Term;
+use std::str::FromStr;
 
 #[derive(Copy, Clone, Debug)]
 pub enum FieldType {
@@ -15,6 +17,29 @@ impl FieldType {
             1 => FieldType::Bool,
             2 => FieldType::String,
             _ => panic!("Unknown value: {}", value),
+        }
+    }
+}
+
+impl FromStr for FieldType {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        match input {
+            "int" => Ok(FieldType::Int),
+            "bool" => Ok(FieldType::Bool),
+            "string" => Ok(FieldType::String),
+            _ => Err(()),
+        }
+    }
+}
+
+impl ToString for FieldType {
+    fn to_string(&self) -> String {
+        match self {
+            FieldType::Int => "int".to_string(),
+            FieldType::Bool => "bool".to_string(),
+            FieldType::String => "string".to_string(),
         }
     }
 }
@@ -51,7 +76,7 @@ impl FieldValue {
 
     pub fn as_bool(&self) -> Option<bool> {
         if self.value_int.is_some() {
-            return Some(self.value_int.unwrap() != 0);
+            return Some(self.value_int.unwrap() > 0);
         } else if self.value_bool.is_some() {
             return Some(self.value_bool.unwrap());
         } else if self.value_string.is_some() {

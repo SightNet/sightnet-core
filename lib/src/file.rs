@@ -121,7 +121,8 @@ impl File {
     }
 
     pub fn load(file_name: &str) -> Result<Collection, io::Error> {
-        let mut collection = Collection::default();
+        //TODO: add col name loading
+        let mut collection = Collection::new();
         let mut bytes: Vec<u8> = Vec::new();
 
         {

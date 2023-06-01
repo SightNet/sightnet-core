@@ -1,25 +1,2 @@
-[package]
-name = "sightnet_core"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-lazy_static = "1.4.0"
-rust-stemmers = "1.2.0"
-hashbrown = "0.13.2"
-fs2 = "0.4.3"
-
-[dev-dependencies]
-criterion = "0.4.0"
-
-[lib]
-name = "sightnet_core"
-path = "src/lib.rs"
-
-[[bin]]
-name = "example"
-path = "src/example.rs"
-
-[[bench]]
-name = "benchmark"
-harness = false
+[workspace]
+members = ["lib", "server"]

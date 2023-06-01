@@ -1,0 +1,17 @@
+[package]
+name = "sightnet_core_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = "1.0.159"
+serde_json = "1.0.95"
+lazy_static = "1.4.0"
+salvo = { features = ["affix"] }
+tokio = { version = "1.27.0" }
+sightnet_core = { path = "../lib" }
+hashbrown = "0.13.2"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"

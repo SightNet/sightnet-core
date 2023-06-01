@@ -38,12 +38,12 @@ use crate::tokenizer::tokenize;
 
 lazy_static! {
     static ref CORPUS: String =
-        fs::read_to_string("./corpora/20140615-wiki-en_000000.txt").unwrap();
+        fs::read_to_string("../corpora/20140615-wiki-en_000000.txt").unwrap();
     static ref FIELD_NAME: &'static str = "text";
 }
 
 fn load_sample_corpus<'a>() -> Collection {
-    let mut collection = Collection::default();
+    let mut collection = Collection::new();
     collection.push_field(*FIELD_NAME, FieldType::String);
 
     for line in CORPUS.lines() {
