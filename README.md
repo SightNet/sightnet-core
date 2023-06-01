@@ -31,5 +31,8 @@
 #### Commit changes
 `http GET 'localhost:1551/collection/1/commit'`
 
+## Running
+`cargo run --package sightnet_core_server --bin server`
+
 ## LICENSE
 AGPL 3.0
