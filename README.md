@@ -25,9 +25,9 @@
 #### Update document
 `http POST 'localhost:1551/collection/1/documents/0' field_name=12345`
 #### Remove document
-`http DELTE 'localhost:1551/collection/1/documents/0'`
+`http DELETE 'localhost:1551/collection/1/documents/0'`
 #### Search
-`http 'localhost:1551/collection/1/search?q=test&strict=false'`
+`http GET 'localhost:1551/collection/1/search?q=test&strict=false'`
 #### Commit changes
 `http GET 'localhost:1551/collection/1/commit'`
 
