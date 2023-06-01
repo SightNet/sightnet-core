@@ -1,10 +1,13 @@
-use hashbrown::HashMap;
+use std::collections::hash_map::{Iter, IterMut};
+use std::collections::HashMap;
+use bincode::{Decode, Encode};
 
 use crate::document::Document;
 use crate::field::{Field, FieldType};
 use crate::file::File;
 use crate::inverted_index::InvertedIndex;
 
+#[derive(Encode, Decode)]
 pub struct Collection {
     pub documents: HashMap<i32, Document>,
     pub fields: Vec<Field>,
@@ -86,11 +89,11 @@ impl Collection {
         return self.documents.len();
     }
 
-    pub fn iter(&self) -> hashbrown::hash_map::Iter<i32, Document> {
+    pub fn iter(&self) -> Iter<'_, i32, Document> {
         return self.documents.iter();
     }
 
-    pub fn iter_mut(&mut self) -> hashbrown::hash_map::IterMut<i32, Document> {
+    pub fn iter_mut(&mut self) -> IterMut<'_, i32, Document> {
         return self.documents.iter_mut();
     }
 

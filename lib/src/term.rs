@@ -1,4 +1,6 @@
-#[derive(Debug, Eq, Clone, Hash)]
+use bincode::{Decode, Encode};
+
+#[derive(Debug, Eq, Clone, Hash, Encode, Decode)]
 pub struct Term {
     pub value: String,
 }

@@ -1,9 +1,10 @@
-use hashbrown::HashMap;
-
+use std::collections::HashMap;
 use crate::field::FieldValue;
 use crate::tokenizer::tokenize;
 
-#[derive(Debug, Eq, Clone)]
+use bincode::{Encode, Decode};
+
+#[derive(Debug, Eq, Clone, Encode, Decode)]
 pub struct Document {
     pub fields: HashMap<String, FieldValue>,
 }
@@ -33,17 +34,19 @@ impl Document {
         self.fields.get_mut(field_name)
     }
 
-    pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
-        let field_value = self.get_mut(field_name);
-
-        if let Some(field_value) = field_value {
-            let tokens = tokenize(field_value.as_string().unwrap().as_str());
+   pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
+    if let Some(field_value) = self.get_mut(field_name) {
+        if let Some(str_value) = field_value.as_string() {
+            let tokens = tokenize(str_value.as_str());
             field_value.value_tokens = Some(tokens);
             Some(field_value)
         } else {
             None
         }
+    } else {
+        None
     }
+}
 }
 
 impl PartialEq for Document {

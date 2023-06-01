@@ -2,8 +2,9 @@ use std::fmt;
 use crate::inverted_index::InvertedIndex;
 use crate::term::Term;
 use std::str::FromStr;
+use bincode::{Encode, Decode};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Encode, Decode)]
 pub enum FieldType {
     Int = 0,
     Bool = 1,
@@ -44,7 +45,7 @@ impl ToString for FieldType {
     }
 }
 
-#[derive(Debug, Eq, Clone)]
+#[derive(Debug, Eq, Clone, Encode, Decode)]
 pub struct FieldValue {
     pub value_int: Option<i64>,
     pub value_bool: Option<bool>,
@@ -132,7 +133,7 @@ impl PartialEq for FieldValue {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct Field {
     pub name: String,
     pub field_type: FieldType,
