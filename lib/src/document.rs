@@ -1,9 +1,11 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
+
+use bincode::{Decode, Encode};
 
 use crate::field::FieldValue;
 use crate::tokenizer::tokenize;
 
-#[derive(Debug, Eq, Clone)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct Document {
     pub fields: HashMap<String, FieldValue>,
 }
@@ -33,16 +35,23 @@ impl Document {
         self.fields.get_mut(field_name)
     }
 
-    pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
-        let field_value = self.get_mut(field_name);
-
-        if let Some(field_value) = field_value {
-            let tokens = tokenize(field_value.as_string().unwrap().as_str());
-            field_value.value_tokens = Some(tokens);
-            Some(field_value)
+    pub fn process_field(&mut self, name: &str) -> Option<&mut FieldValue> {
+        if let Some(value) = self.get_mut(name) {
+            if let FieldValue::String(str, tokens)= value {
+                *tokens = tokenize(str.clone().as_str());
+                Some(value)
+            } else {
+                None
+            }
         } else {
             None
         }
+    }
+}
+
+impl Default for Document {
+    fn default() -> Self {
+        Document::new()
     }
 }
 

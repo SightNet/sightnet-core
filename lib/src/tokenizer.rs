@@ -1,6 +1,6 @@
-use hashbrown::HashSet;
 use lazy_static::lazy_static;
 use rust_stemmers::{Algorithm, Stemmer};
+use std::collections::HashSet;
 
 use crate::term::Term;
 
@@ -10,7 +10,7 @@ lazy_static! {
 }
 
 pub fn tokenize(text: &str) -> Vec<Term> {
-    text.split(|x: char| SEPARATORS.contains(&x))
+    text.split(|x: char| (&SEPARATORS).contains(&x))
         .map(|x| x.trim())
         .filter(|x| !x.is_empty())
         .map(|x| Term {

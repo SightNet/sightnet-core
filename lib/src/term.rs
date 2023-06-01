@@ -1,4 +1,6 @@
-#[derive(Debug, Eq, Clone, Hash)]
+use bincode::{Decode, Encode};
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Encode, Decode)]
 pub struct Term {
     pub value: String,
 }
@@ -23,8 +25,8 @@ impl From<String> for Term {
     }
 }
 
-impl PartialEq for Term {
-    fn eq(&self, other: &Term) -> bool {
-        self.value == other.value
-    }
-}
+// impl PartialEq for Term {
+//     fn eq(&self, other: &Term) -> bool {
+//         self.value == other.value
+//     }
+// }

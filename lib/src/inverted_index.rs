@@ -1,17 +1,17 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
+
+use bincode::{Decode, Encode};
 
 use crate::term::Term;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct InvertedIndex {
-    pub field_name: String,
     index: HashMap<Term, Vec<i32>>,
 }
 
 impl InvertedIndex {
-    pub fn new(field_name: String) -> InvertedIndex {
+    pub fn new() -> InvertedIndex {
         InvertedIndex {
-            field_name,
             index: HashMap::new(),
         }
     }
