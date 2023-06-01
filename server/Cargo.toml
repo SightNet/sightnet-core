@@ -10,7 +10,6 @@ lazy_static = "1.4.0"
 salvo = { features = ["affix"] }
 tokio = { version = "1.27.0" }
 sightnet_core = { path = "../lib" }
-hashbrown = "0.13.2"
 
 [[bin]]
 name = "server"

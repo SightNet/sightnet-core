@@ -1,9 +1,7 @@
 use salvo::{Depot, Request, Response, Writer};
 use salvo::async_trait;
 use salvo::writer::Json;
-use serde::Serialize;
 use serde_json::{json, Value};
-use serde_json::Value::Null;
 
 pub struct ApiResult {
     data: Option<Value>,

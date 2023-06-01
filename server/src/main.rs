@@ -1,19 +1,5 @@
-use std::collections::HashMap;
-use std::iter::Map;
-use std::str::FromStr;
-use std::sync::Mutex;
-
-use lazy_static::lazy_static;
-use salvo::affix;
 use salvo::prelude::*;
-use salvo::routing::PathState;
-use serde::__private::doc;
-use serde::Serialize;
-use serde_json::{json, Value};
-
 use routes::collection;
-use sightnet_core::collection::Collection;
-use sightnet_core::field::{Field, FieldType};
 
 use crate::routes::document;
 

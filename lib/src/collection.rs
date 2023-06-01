@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use bincode::{Decode, Encode};
 
 use crate::document::Document;
-use crate::field::{Field, FieldType};
+use crate::field::{Field, FieldValue};
 use crate::file::File;
 use crate::inverted_index::InvertedIndex;
 
@@ -26,13 +26,13 @@ impl Collection {
         }
     }
 
-    pub fn push_field(&mut self, name: &str, field_type: FieldType) {
+    pub fn push_field(&mut self, name: &str, value: FieldValue) {
         let name = name.to_string();
-        let inverted_index = InvertedIndex::new(name.clone());
+        let inverted_index = InvertedIndex::new();
 
         self.fields.push(Field {
             name,
-            field_type,
+            value,
             inverted_index,
         });
     }
@@ -40,18 +40,17 @@ impl Collection {
     pub fn commit(&mut self) {
         for i in 0..self.fields.len() {
             for j in i..self.len() {
-                let tokens;
+                let doc = self.documents.get_mut(&(j as i32)).unwrap();
+                let value = doc.process_field(self.fields[i].name.as_str());
 
-                {
-                    let doc = self.documents.get_mut(&(j as i32)).unwrap();
-                    let field_value = doc.process_field(self.fields[i].name.as_str());
-                    tokens = field_value.unwrap().value_tokens.as_ref().unwrap().clone();
-                }
+                if let Some(value) = value {
+                    if let FieldValue::String(_, tokens) = value {
+                        let field = &mut self.fields[i];
 
-                let field = &mut self.fields[i];
-
-                for token in tokens {
-                    field.inverted_index.push(token.clone(), j as i32);
+                        for token in tokens {
+                            field.inverted_index.push(token.clone(), j as i32);
+                        }
+                    }
                 }
             }
         }

@@ -1,13 +1,7 @@
-use hashbrown::HashMap;
-
+use std::collections::HashMap;
 use crate::collection::Collection;
-use crate::field::{Field, FieldType};
+use crate::field::{Field, FieldValue};
 use crate::term::Term;
-
-// #[derive(Debug, Default)]
-// pub struct Rank {
-//     pub bm25: f32,
-// }
 
 pub struct Ranker {}
 
@@ -38,8 +32,13 @@ impl Ranker {
         let sum_of_tokens_count: usize = collection
             .iter()
             .map(|(_id, doc)| {
-                let field_value = doc.get(field.inverted_index.field_name.as_str()).unwrap();
-                field_value.value_tokens.as_ref().unwrap_or(&Vec::new()).len()
+                let field_value = doc.get(field.name.as_str()).unwrap();
+
+                if let FieldValue::String(_, tokens) = field_value {
+                    tokens.len()
+                } else {
+                    0
+                }
             })
             .sum();
 
@@ -47,22 +46,22 @@ impl Ranker {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {
-            let field_value = doc.get(field.inverted_index.field_name.as_str()).unwrap();
-            let freq: f32 = field_value
-                .value_tokens
-                .as_ref()
-                .unwrap_or(&Vec::new())
-                .iter()
-                .filter(|x| *x == term)
-                .count() as f32;
-            let bm25: f32 =
-                idf * ((freq * (k1 + 1f32)) / (freq + k1 * (1f32 - b + b * (d / avgdl))));
+            let field_value = doc.get(field.name.as_str()).unwrap();
 
-            if bm25 == 0f32 {
-                continue;
+            if let FieldValue::String(_, tokens) = field_value {
+                let freq: f32 = tokens
+                    .iter()
+                    .filter(|x| *x == term)
+                    .count() as f32;
+                let bm25: f32 =
+                    idf * ((freq * (k1 + 1f32)) / (freq + k1 * (1f32 - b + b * (d / avgdl))));
+
+                if bm25 == 0f32 {
+                    continue;
+                }
+
+                ranks.insert(*id, bm25);
             }
-
-            ranks.insert(id.clone(), bm25);
         }
 
         ranks
@@ -72,10 +71,12 @@ impl Ranker {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {
-            let field_value = doc.get(field.inverted_index.field_name.as_str()).unwrap();
+            let field_value = doc.get(field.name.as_str()).unwrap();
 
-            if field_value.value_int.unwrap_or_default().to_string() == term.value {
-                ranks.insert(*id, 1f32);
+            if let FieldValue::Int(value) = field_value {
+                if value.to_string() == term.value {
+                    ranks.insert(*id, 1f32);
+                }
             }
         }
 
@@ -86,10 +87,12 @@ impl Ranker {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {
-            let field_value = doc.get(field.inverted_index.field_name.as_str()).unwrap();
+            let field_value = doc.get(field.name.as_str()).unwrap();
 
-            if field_value.value_bool.unwrap_or_default().to_string() == term.value {
-                ranks.insert(*id, 1f32);
+            if let FieldValue::Bool(value) = field_value {
+                if value.to_string() == term.value {
+                    ranks.insert(*id, 1f32);
+                }
             }
         }
 
@@ -104,10 +107,12 @@ impl Ranker {
         let mut ranks = HashMap::new();
 
         for (id, doc) in collection.iter() {
-            let field_value = doc.get(field.inverted_index.field_name.as_str()).unwrap();
+            let field_value = doc.get(field.name.as_str()).unwrap();
 
-            if field_value.value_string.as_ref().unwrap() == &term.value {
-                ranks.insert(*id, 1f32);
+            if let FieldValue::String(value, _) = field_value {
+                if value == &term.value {
+                    ranks.insert(*id, 1f32);
+                }
             }
         }
 
@@ -115,10 +120,10 @@ impl Ranker {
     }
 
     pub fn rank(term: &Term, strict: bool, collection: &Collection, field: &Field) -> HashMap<i32, f32> {
-        match field.field_type {
-            FieldType::Int => Self::rank_int(term, strict, collection, field),
-            FieldType::Bool => Self::rank_bool(term, strict, collection, field),
-            FieldType::String => Self::rank_string(term, strict, collection, field),
+        match field.value {
+            FieldValue::Int(_) => Self::rank_int(term, strict, collection, field),
+            FieldValue::Bool(_) => Self::rank_bool(term, strict, collection, field),
+            FieldValue::String(_, _) => Self::rank_string(term, strict, collection, field),
         }
     }
 }

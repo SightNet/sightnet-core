@@ -5,7 +5,7 @@ use bincode::{Decode, Encode};
 use crate::field::FieldValue;
 use crate::tokenizer::tokenize;
 
-#[derive(Debug, Eq, Clone, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct Document {
     pub fields: HashMap<String, FieldValue>,
 }
@@ -35,12 +35,11 @@ impl Document {
         self.fields.get_mut(field_name)
     }
 
-    pub fn process_field(&mut self, field_name: &str) -> Option<&mut FieldValue> {
-        if let Some(field_value) = self.get_mut(field_name) {
-            if let Some(str_value) = field_value.as_string() {
-                let tokens = tokenize(str_value.as_str());
-                field_value.value_tokens = Some(tokens);
-                Some(field_value)
+    pub fn process_field(&mut self, name: &str) -> Option<&mut FieldValue> {
+        if let Some(value) = self.get_mut(name) {
+            if let FieldValue::String(str, tokens)= value {
+                *tokens = tokenize(str.clone().as_str());
+                Some(value)
             } else {
                 None
             }

@@ -1,4 +1,5 @@
-use hashbrown::HashMap;
+use std::collections::HashMap;
+
 use salvo::Request;
 use serde_json::{Map, Value};
 
@@ -35,16 +36,15 @@ pub async fn get_query(req: &mut Request) -> Result<String, ApiError> {
 pub fn generate_fields_json(fields: &HashMap<String, FieldValue>) -> Value {
     let mut json_fields = Value::Object(Map::new());
 
-    for field in fields {
-        if field.1.value_int.is_some() {
-            json_fields[field.0] = Value::Number(field.1.value_int.unwrap().into());
-        } else if (field.1.value_bool.is_some()) {
-            json_fields[field.0] = Value::Bool(field.1.value_bool.unwrap().into());
-        } else if (field.1.value_string.is_some()) {
-            let val = field.1.value_string.clone().unwrap().into();
-            json_fields[field.0] = Value::String(val);
+    for (name, value) in fields {
+        if let FieldValue::Int(value) = value {
+            json_fields[name] = Value::Number((*value).into());
+        } else if let FieldValue::Bool(value) = value {
+            json_fields[name] = Value::Bool(*value);
+        } else if let FieldValue::String(value, _tokens) = value {
+            json_fields[name] = Value::String(value.into());
         } else {
-            //TODO: ERROR
+            panic!("WTF?!")
         }
     }
 

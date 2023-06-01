@@ -1,18 +1,16 @@
-use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 use salvo::prelude::*;
-use serde_json::{json, Value};
+use serde_json::json;
 
 use sightnet_core::collection::Collection;
 use sightnet_core::document::Document;
-use sightnet_core::field::{Field, FieldType, FieldValue};
+use sightnet_core::field::FieldValue;
 
 use crate::api_error::ApiError;
 use crate::api_result::ApiResult;
 use crate::routes::{generate_fields_json, get_json_body};
 use crate::routes::collection::{get_collection, get_collection_id};
-use crate::routes::state::STATE;
 
 pub async fn get_document_id(req: &mut Request) -> Result<i32, ApiError> {
     let document_id = req.param::<String>("document_id");
@@ -32,7 +30,6 @@ pub async fn get_document_id(req: &mut Request) -> Result<i32, ApiError> {
 }
 
 pub async fn get_document<'a>(collection: Arc<Mutex<Collection>>, document_id: i32) -> Result<Arc<Mutex<Document>>, ApiError> {
-    let collection = collection.clone();
     let collection = collection.lock().unwrap();
     let document = collection.get(document_id);
 
@@ -44,25 +41,24 @@ pub async fn get_document<'a>(collection: Arc<Mutex<Collection>>, document_id: i
 }
 
 #[handler]
-pub async fn info(req: &mut Request, res: &mut Response) -> Result<ApiResult, ApiError> {
+pub async fn info(req: &mut Request) -> Result<ApiResult, ApiError> {
     let collection_id = get_collection_id(req).await?;
     let collection = get_collection(collection_id).await?;
     let collection = collection.clone();
     let document_id = get_document_id(req).await?;
     let document = get_document(collection.clone(), document_id).await?;
-    let document = document.clone();
     let document = document.lock().unwrap();
     let fields = &document.fields;
-    let mut json_fields = generate_fields_json(fields);
+    let json_fields = generate_fields_json(fields);
 
-    Ok(ApiResult::new(json!({
+    Ok(ApiResult::new(Some(json!({
         "id": document_id,
         "fields": json_fields
-    })))
+    }))))
 }
 
 #[handler]
-pub async fn create(req: &mut Request, res: &mut Response) -> Result<ApiResult, ApiError> {
+pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
     let collection_id = get_collection_id(req).await?;
     let collection = get_collection(collection_id.clone()).await?;
     let collection = collection.clone();
@@ -77,16 +73,16 @@ pub async fn create(req: &mut Request, res: &mut Response) -> Result<ApiResult, 
     let mut document = Document::new();
     let fields = fields.unwrap();
 
-    for field in fields {
-        document.push(field.0, FieldValue::from(field.1.as_str().unwrap().to_owned()));
+    for (name, value) in fields {
+        document.push(name, FieldValue::String(value.as_str().unwrap().into(), vec![]));
     }
 
     collection.lock().unwrap().push(document, None);
-    Ok(ApiResult::new(Value::Null))
+    Ok(ApiResult::new(None))
 }
 
 #[handler]
-pub async fn update(req: &mut Request, res: &mut Response) -> Result<ApiResult, ApiError> {
+pub async fn update(req: &mut Request) -> Result<ApiResult, ApiError> {
     let collection_id = get_collection_id(req).await?;
     let collection = get_collection(collection_id.clone()).await?;
     let collection = collection.clone();
@@ -105,20 +101,27 @@ pub async fn update(req: &mut Request, res: &mut Response) -> Result<ApiResult, 
 
     for field in fields {
         let mut document = document.lock().unwrap();
-        let f_value = document.get_mut(field.0).unwrap();
-        f_value.value_string = Some(field.1.as_str().unwrap().to_owned());
+        let value = document.get_mut(field.0).unwrap();
+
+        if let FieldValue::Int(value) = value {
+            *value = field.1.as_i64().unwrap();
+        } else if let FieldValue::Bool(value) = value {
+            *value = field.1.as_bool().unwrap();
+        } else if let FieldValue::String(value, _) = value {
+            *value = field.1.as_str().unwrap().to_string();
+        }
     }
 
-    Ok(ApiResult::new(Value::Null))
+    Ok(ApiResult::new(None))
 }
 
 #[handler]
-pub async fn remove(req: &mut Request, res: &mut Response) -> Result<ApiResult, ApiError> {
+pub async fn remove(req: &mut Request) -> Result<ApiResult, ApiError> {
     let collection_id = get_collection_id(req).await?;
     let collection = get_collection(collection_id.clone()).await?;
     let document_id = get_document_id(req).await?;
     get_document(collection.clone(), document_id).await?;
 
     collection.clone().lock().unwrap().remove(document_id);
-    Ok(ApiResult::new(Value::Null))
+    Ok(ApiResult::new(None))
 }

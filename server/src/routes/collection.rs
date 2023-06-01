@@ -2,15 +2,14 @@ use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 use salvo::prelude::*;
-use serde_json::{json, Map, Value};
-use serde_json::Value::Object;
+use serde_json::{json, Value};
 
 use sightnet_core::collection::Collection;
-use sightnet_core::field::{Field, FieldType};
+use sightnet_core::field::{Field, FieldValue};
 
 use crate::api_error::ApiError;
 use crate::api_result::ApiResult;
-use crate::routes::{generate_fields_json, get_is_strict, get_json_body, get_max, get_query};
+use crate::routes::{generate_fields_json, get_json_body, get_query};
 use crate::routes::state::STATE;
 
 pub async fn get_collection_id(req: &mut Request) -> Result<String, ApiError> {
@@ -53,18 +52,17 @@ pub async fn get_max(req: &mut Request) -> Option<usize> {
 pub async fn info(req: &mut Request) -> Result<ApiResult, ApiError> {
     let id = get_collection_id(req).await?;
     let collection = get_collection(id.clone()).await?;
-    let collection = collection.clone();
     let collection = collection.lock().unwrap();
     let json_fields: Vec<Value> = collection.fields.iter().map(|x: &Field| {
         json!({
-                x.name.as_str(): x.field_type.to_string()
+                x.name.as_str(): x.value.to_string()
             })
     }).collect();
 
-    Ok(ApiResult::new(json!({
+    Ok(ApiResult::new(Some(json!({
         "name": id,
         "fields": json_fields
-    })))
+    }))))
 }
 
 #[handler]
@@ -87,22 +85,21 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
     let mut collection = Collection::new();
 
     for field in fields {
-        let value = FieldType::from_str(field.1.as_str().unwrap()).unwrap();
+        let value = FieldValue::from_str(field.1.as_str().unwrap()).unwrap();
         collection.push_field(field.0, value);
     }
 
     STATE.lock().unwrap().collections.insert(id, Arc::new(Mutex::new(collection)));
-    Ok(ApiResult::new(Value::Null))
+    Ok(ApiResult::new(None))
 }
 
 #[handler]
 pub async fn update(req: &mut Request) -> Result<ApiResult, ApiError> {
     let id = get_collection_id(req).await?;
-    let collection = get_collection(id.clone()).await?;
 
     dbg!(id);
 
-    Ok(ApiResult::new(Value::Null))
+    Ok(ApiResult::new(None))
 }
 
 #[handler]
@@ -110,8 +107,8 @@ pub async fn commit(req: &mut Request) -> Result<ApiResult, ApiError> {
     let id = get_collection_id(req).await?;
     let collection = get_collection(id).await?;
 
-    collection.clone().lock().unwrap().commit();
-    Ok(ApiResult::new(Value::Null))
+    collection.lock().unwrap().commit();
+    Ok(ApiResult::new(None))
 }
 
 #[handler]
@@ -121,7 +118,6 @@ pub async fn search(req: &mut Request) -> Result<ApiResult, ApiError> {
     let is_strict = get_is_strict(req).await?;
     let max = get_max(req).await;
     let collection = get_collection(id.clone()).await?;
-    let collection = collection.clone();
     let collection = collection.lock().unwrap();
 
     let results = collection.search(query.as_str(), is_strict, None, max);
@@ -133,5 +129,5 @@ pub async fn search(req: &mut Request) -> Result<ApiResult, ApiError> {
         json_results.push(json_fields);
     }
 
-    Ok(ApiResult::new(Value::Array(json_results)))
+    Ok(ApiResult::new(Some(Value::Array(json_results))))
 }
