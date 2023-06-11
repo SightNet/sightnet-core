@@ -1,7 +1,8 @@
+use std::sync::Mutex;
+
+use config::Config;
 use lazy_static::lazy_static;
 use serde::Deserialize;
-use std::sync::Mutex;
-use config::Config;
 
 #[derive(Debug, Deserialize)]
 pub struct Cfg {
