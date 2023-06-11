@@ -1,6 +1,7 @@
+use std::collections::HashSet;
+
 use lazy_static::lazy_static;
 use rust_stemmers::{Algorithm, Stemmer};
-use std::collections::HashSet;
 
 use crate::term::Term;
 

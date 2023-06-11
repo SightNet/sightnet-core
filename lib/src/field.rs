@@ -1,4 +1,5 @@
 use std::str::FromStr;
+
 use bincode::{Decode, Encode};
 
 use crate::inverted_index::InvertedIndex;

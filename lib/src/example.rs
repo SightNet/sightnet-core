@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use sightnet_core::collection::Collection;
 use sightnet_core::document::Document;
-use sightnet_core::field::{FieldValue};
+use sightnet_core::field::FieldValue;
 use sightnet_core::file::File;
 
 pub fn main() {

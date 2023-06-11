@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+
 use crate::collection::Collection;
 use crate::field::{Field, FieldValue};
 use crate::term::Term;
