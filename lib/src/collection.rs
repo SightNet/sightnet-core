@@ -98,13 +98,13 @@ impl Collection {
     }
 
     pub fn load(&mut self) -> Result<(), Error> {
-        assert!(self.file_name.is_none(), "You haven't passed file_name");
+        assert!(self.file_name.is_some(), "You haven't passed file_name");
         *self = File::load(self.file_name.as_ref().unwrap())?;
         Ok(())
     }
 
     pub fn save(&self) -> Result<(), Error> {
-        assert!(self.file_name.is_none(), "You haven't passed file_name");
+        assert!(self.file_name.is_some(), "You haven't passed file_name");
         File::save(self, self.file_name.as_ref().unwrap())
     }
 }
