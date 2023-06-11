@@ -90,6 +90,8 @@ async fn main() {
         }
     });
 
+    println!("Started at localhost:{}", 1551);
+
     Server::new(TcpListener::bind("127.0.0.1:1551"))
         .serve(collection_router)
         .await;
