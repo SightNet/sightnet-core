@@ -1,5 +1,6 @@
 use std::collections::hash_map::{Iter, IterMut};
 use std::collections::HashMap;
+use std::io::Error;
 
 use bincode::{Decode, Encode};
 
@@ -8,7 +9,7 @@ use crate::field::{Field, FieldValue};
 use crate::file::File;
 use crate::inverted_index::InvertedIndex;
 
-#[derive(Encode, Decode)]
+#[derive(Default, Encode, Decode)]
 pub struct Collection {
     pub documents: HashMap<i32, Document>,
     pub fields: Vec<Field>,
@@ -18,12 +19,7 @@ pub struct Collection {
 
 impl Collection {
     pub fn new() -> Collection {
-        Collection {
-            documents: HashMap::default(),
-            fields: Vec::default(),
-            file_name: None,
-            last_index: 0,
-        }
+        Collection::default()
     }
 
     pub fn push_field(&mut self, name: &str, value: FieldValue) {
@@ -38,18 +34,18 @@ impl Collection {
     }
 
     pub fn commit(&mut self) {
+        //iterate over fields
         for i in 0..self.fields.len() {
-            for j in i..self.len() {
+            //iterate over documents
+            for j in 0..self.len() {
                 let doc = self.documents.get_mut(&(j as i32)).unwrap();
                 let value = doc.process_field(self.fields[i].name.as_str());
 
-                if let Some(value) = value {
-                    if let FieldValue::String(_, tokens) = value {
-                        let field = &mut self.fields[i];
+                if let Some(FieldValue::String(_, tokens)) = value {
+                    let field = &mut self.fields[i];
 
-                        for token in tokens {
-                            field.inverted_index.push(token.clone(), j as i32);
-                        }
+                    for token in tokens {
+                        field.inverted_index.push(token.clone(), j as i32);
                     }
                 }
             }
@@ -57,15 +53,15 @@ impl Collection {
     }
 
     pub fn push(&mut self, document: Document, index: Option<i32>) {
-        if let Some(index) = index {
-            if self.documents.get(&index).is_some() {
-                panic!("There is document with the same index: {}", index);
+        match index {
+            Some(index) => {
+                let old_value = self.documents.insert(index, document);
+                assert!(old_value.is_none(), "There is document with the same index: {}", index);
             }
-
-            self.documents.insert(index, document);
-        } else {
-            self.documents.insert(self.last_index, document);
-            self.last_index += 1;
+            None => {
+                self.documents.insert(self.last_index, document);
+                self.last_index += 1;
+            }
         }
     }
 
@@ -85,11 +81,9 @@ impl Collection {
         self.fields.iter().find(|x| x.name == *name)
     }
 
-
     pub fn is_empty(&self) -> bool {
         self.documents.is_empty()
     }
-
 
     pub fn len(&self) -> usize {
         self.documents.len()
@@ -103,18 +97,14 @@ impl Collection {
         return self.documents.iter_mut();
     }
 
-    pub fn load(&mut self) -> Result<(), std::io::Error> {
-        *self = File::load(self.file_name.clone().unwrap().as_str())?;
+    pub fn load(&mut self) -> Result<(), Error> {
+        assert!(self.file_name.is_none(), "You haven't passed file_name");
+        *self = File::load(self.file_name.as_ref().unwrap())?;
         Ok(())
     }
 
-    pub fn save(&self) -> Result<(), std::io::Error> {
-        File::save(self, self.file_name.clone().unwrap().as_str())
-    }
-}
-
-impl Default for Collection {
-    fn default() -> Self {
-        Collection::new()
+    pub fn save(&self) -> Result<(), Error> {
+        assert!(self.file_name.is_none(), "You haven't passed file_name");
+        File::save(self, self.file_name.as_ref().unwrap())
     }
 }

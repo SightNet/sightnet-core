@@ -5,16 +5,14 @@ use bincode::{Decode, Encode};
 use crate::field::FieldValue;
 use crate::tokenizer::tokenize;
 
-#[derive(Debug, Clone, Encode, Decode)]
+#[derive(Debug, Default, Clone, Encode, Decode)]
 pub struct Document {
     pub fields: HashMap<String, FieldValue>,
 }
 
 impl Document {
     pub fn new() -> Self {
-        Document {
-            fields: HashMap::new(),
-        }
+        Self::default()
     }
 
     pub fn push(&mut self, field_name: &str, field_value: FieldValue) {
@@ -36,22 +34,16 @@ impl Document {
     }
 
     pub fn process_field(&mut self, name: &str) -> Option<&mut FieldValue> {
-        if let Some(value) = self.get_mut(name) {
-            if let FieldValue::String(str, tokens)= value {
-                *tokens = tokenize(str.clone().as_str());
-                Some(value)
-            } else {
+        match self.get_mut(name) {
+            Some(value) => {
+                if let FieldValue::String(str, tokens) = value {
+                    *tokens = tokenize(str.clone().as_str());
+                    return Some(value);
+                }
                 None
             }
-        } else {
-            None
+            None => None
         }
-    }
-}
-
-impl Default for Document {
-    fn default() -> Self {
-        Document::new()
     }
 }
 
