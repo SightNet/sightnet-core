@@ -11,7 +11,7 @@ pub fn main() {
     collection.push_field("title", FieldValue::String("".into(), vec![]));
 
     let list = fs::read_to_string("corpora/corpus.txt").unwrap();
-    let corpus: Vec<&str> = list.split("\n").collect();
+    let corpus: Vec<&str> = list.split('\n').collect();
 
     dbg!(corpus.len());
 
