@@ -132,7 +132,8 @@ pub async fn search(req: &mut Request) -> Result<ApiResult, ApiError> {
 
     for result in results {
         let document = collection.get(result.0);
-        let json_fields = generate_fields_json(&document.unwrap().fields);
+        let mut json_fields = generate_fields_json(&document.unwrap().fields);
+        json_fields["rank"] =  json!(result.1);
         json_results.push(json_fields);
     }
 
