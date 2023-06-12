@@ -10,8 +10,8 @@
 
 ## Supported Field Types
 
-* Int,
-* Bool,
+* Int
+* Bool
 * String
 
 ## Ranking
