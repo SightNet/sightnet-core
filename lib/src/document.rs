@@ -38,10 +38,10 @@ impl Document {
 
     pub fn process_field(&mut self, name: &str) -> Option<&mut FieldValue> {
         match self.get_mut(name) {
-            Some(value) => {
-                if let FieldValue::String(str, tokens) = value {
-                    *tokens = tokenize(str.clone().as_str());
-                    return Some(value);
+            Some(field_value) => {
+                if let FieldValue::String(value, tokens) = field_value {
+                    *tokens = Some(tokenize(value.clone().as_str()));
+                    return Some(field_value);
                 }
                 None
             }

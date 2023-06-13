@@ -13,7 +13,7 @@ pub struct File {}
 impl File {
     pub fn save(collection: &Collection, file_name: &str) -> Result<(), io::Error> {
         let mut file = fs::File::create(file_name)?;
-        let bytes = bincode::encode_to_vec(collection, config::standard()).expect("TODO: panic message");
+        let bytes = bincode::encode_to_vec(collection, config::standard()).expect("Valide collection");
 
         file.lock_exclusive()?;
         file.write_all(&bytes)?;
@@ -30,7 +30,7 @@ impl File {
         file.read_to_end(&mut bytes)?;
         file.unlock()?;
 
-        let collection: Collection = bincode::decode_from_slice(&bytes, config::standard()).expect("TODO: panic").0;
+        let collection: Collection = bincode::decode_from_slice(&bytes, config::standard()).expect("Valide db file").0;
         Ok(collection)
     }
 }

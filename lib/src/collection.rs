@@ -41,8 +41,10 @@ impl Collection {
                 let value = doc.1.process_field(field.name.as_str());
 
                 if let Some(FieldValue::String(_, tokens)) = value {
-                    for token in tokens {
-                        field.inverted_index.push(token.clone(), *doc.0);
+                    if let Some(tokens) = tokens {
+                        for token in tokens {
+                            field.inverted_index.push(token.clone(), *doc.0);
+                        }
                     }
                 }
             }

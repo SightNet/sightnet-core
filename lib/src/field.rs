@@ -9,7 +9,7 @@ use crate::term::Term;
 pub enum FieldValue {
     Int(i64),
     Bool(bool),
-    String(String, Vec<Term>),
+    String(String, Option<Vec<Term>>),
 }
 
 impl FieldValue {
@@ -39,7 +39,7 @@ impl FromStr for FieldValue {
         match s {
             "int" => Ok(FieldValue::Int(0)),
             "bool" => Ok(FieldValue::Bool(false)),
-            "string" => Ok(FieldValue::String("".into(), vec![])),
+            "string" => Ok(FieldValue::String("".into(), None)),
             _ => Err(()),
         }
     }
