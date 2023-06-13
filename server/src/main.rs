@@ -1,5 +1,5 @@
-use std::{env, fs, os, thread};
-use std::path::{Path, PathBuf};
+use std::{fs, thread};
+use std::path::{Path};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -8,7 +8,6 @@ use salvo::prelude::*;
 use routes::collection;
 use sightnet_core::file::File;
 
-use crate::config::CFG;
 use crate::routes::document;
 use crate::routes::state::STATE;
 
@@ -19,14 +18,13 @@ mod config;
 
 fn create_files() {
     let home = dirs::home_dir().unwrap();
-    let path = home.join("db");
-
+    let path = home.join("sightnet").join("db");
     fs::create_dir_all(path).expect("Failed at creating files");
 }
 
 fn load_collections() {
     let home = dirs::home_dir().unwrap();
-    let path = home.join("db");
+    let path = home.join("sightnet").join("db");
     let files = fs::read_dir(path).unwrap();
 
     for file in files {
@@ -36,9 +34,7 @@ fn load_collections() {
         let collection_id = Path::new(file_name).file_stem().unwrap().to_str().unwrap();
         let collection = File::load(file_name).expect("Failed loading collections");
 
-        println!("Loaded: {}", collection_id);
-        println!("Size: {}", collection.len());
-
+        println!("Loaded {} ({})", collection_id, collection.len());
         STATE.lock().unwrap().collections.insert(collection_id.to_string(), Arc::new(Mutex::new(collection)));
     }
 }
@@ -53,7 +49,7 @@ fn save_collections() {
 
 #[tokio::main]
 async fn main() {
-    let collection_router =
+    let router =
         Router::with_path("col")
             .push(
                 Router::with_path("<collection_id>")
@@ -92,7 +88,6 @@ async fn main() {
 
     println!("Started at localhost:{}", 1551);
 
-    Server::new(TcpListener::bind("127.0.0.1:1551"))
-        .serve(collection_router)
-        .await;
+    let acceptor = TcpListener::new("127.0.0.1:1551").bind().await;
+    Server::new(acceptor).serve(router).await;
 }

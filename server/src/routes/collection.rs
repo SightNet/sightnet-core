@@ -1,5 +1,3 @@
-use std::env;
-use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
@@ -7,11 +5,10 @@ use salvo::prelude::*;
 use serde_json::{json, Value};
 
 use sightnet_core::collection::Collection;
-use sightnet_core::field::{Field, FieldValue};
+use sightnet_core::field::{FieldValue};
 
 use crate::api_error::ApiError;
 use crate::api_result::ApiResult;
-use crate::config::{Cfg, CFG};
 use crate::routes::{generate_fields_json, get_json_body, get_query};
 use crate::routes::state::STATE;
 
@@ -91,7 +88,7 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
     }
 
     let home = dirs::home_dir().unwrap();
-    let path = home.join("db").join(format!("{}.bin", id.clone()));
+    let path = home.join("sightnet").join("db").join(format!("{}.bin", id.clone()));
     collection.file_name = Some(path.to_str().unwrap().into());
 
     STATE.lock().unwrap().collections.insert(id, Arc::new(Mutex::new(collection)));

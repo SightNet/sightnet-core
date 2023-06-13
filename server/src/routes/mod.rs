@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use salvo::Request;
-use serde_json::{json, Map, Value};
+use serde_json::{json, Value};
 
 use sightnet_core::field::FieldValue;
 

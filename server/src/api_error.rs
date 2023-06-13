@@ -1,6 +1,6 @@
 use salvo::{Depot, Request, Response, Writer};
 use salvo::async_trait;
-use salvo::http::StatusError;
+use salvo::hyper::StatusCode;
 use salvo::writer::Json;
 use serde_json::json;
 
@@ -28,6 +28,6 @@ impl Writer for ApiError {
             }
         })));
 
-        res.set_status_error(StatusError::internal_server_error());
+        res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
     }
 }
