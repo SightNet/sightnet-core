@@ -29,7 +29,7 @@ pub async fn get_document_id(req: &mut Request) -> Result<i32, ApiError> {
     Ok(document_id.unwrap())
 }
 
-pub async fn get_document<'a>(collection: Arc<Mutex<Collection>>, document_id: i32) -> Result<Arc<Mutex<Document>>, ApiError> {
+pub async fn get_document(collection: Arc<Mutex<Collection>>, document_id: i32) -> Result<Arc<Mutex<Document>>, ApiError> {
     let collection = collection.lock().unwrap();
     let document = collection.get(document_id);
 
@@ -49,12 +49,10 @@ pub async fn info(req: &mut Request) -> Result<ApiResult, ApiError> {
     let document = get_document(collection.clone(), document_id).await?;
     let document = document.lock().unwrap();
     let fields = &document.fields;
-    let json_fields = generate_fields_json(fields);
+    let mut json = generate_fields_json(fields);
+    json["id"] = json!(document_id);
 
-    Ok(ApiResult::new(Some(json!({
-        "id": document_id,
-        "fields": json_fields
-    }))))
+    Ok(ApiResult::new(Some(json)))
 }
 
 #[handler]
@@ -73,8 +71,28 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
     let mut document = Document::new();
     let fields = fields.unwrap();
 
+    for collection_field in &collection.lock().unwrap().fields{
+        if !fields.iter().any(|x| *x.0 == collection_field.name) {
+            return Err(ApiError::new(20, "You haven't all fields."));
+        }
+    }
+
     for (name, value) in fields {
-        document.push(name, FieldValue::String(value.as_str().unwrap().into(), vec![]));
+        let collection_fields = &collection.lock().unwrap().fields;
+        let field_type = &collection_fields.iter().find(|x| x.name == *name).unwrap().value;
+        let field_value = match field_type {
+            FieldValue::Int(_) => {
+                FieldValue::Int(value.as_i64().unwrap())
+            }
+            FieldValue::Bool(_) => {
+                FieldValue::Bool(value.as_bool().unwrap())
+            }
+            FieldValue::String(_, _) => {
+                FieldValue::String(value.as_str().unwrap().into(), vec![])
+            }
+        };
+
+        document.push(name, field_value);
     }
 
     collection.lock().unwrap().push(document, None);
@@ -101,15 +119,19 @@ pub async fn update(req: &mut Request) -> Result<ApiResult, ApiError> {
 
     for field in fields {
         let mut document = document.lock().unwrap();
-        let value = document.get_mut(field.0).unwrap();
+        let field_value = document.get_mut(field.0).unwrap();
 
-        if let FieldValue::Int(value) = value {
-            *value = field.1.as_i64().unwrap();
-        } else if let FieldValue::Bool(value) = value {
-            *value = field.1.as_bool().unwrap();
-        } else if let FieldValue::String(value, _) = value {
-            *value = field.1.as_str().unwrap().to_string();
-        }
+        match field_value {
+            FieldValue::Int(value) => {
+                *value = field.1.as_i64().unwrap()
+            }
+            FieldValue::Bool(value) => {
+                *value = field.1.as_bool().unwrap()
+            }
+            FieldValue::String(value, _) => {
+                *value = field.1.as_str().unwrap().to_string()
+            }
+        };
     }
 
     Ok(ApiResult::new(None))

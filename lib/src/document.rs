@@ -18,10 +18,13 @@ impl Document {
     pub fn push(&mut self, field_name: &str, field_value: FieldValue) {
         let entry = self.fields.get_mut(field_name);
 
-        if let Some(entry) = entry {
-            *entry = field_value;
-        } else {
-            self.fields.insert(field_name.to_string(), field_value);
+        match entry {
+            Some(entry) => {
+                *entry = field_value;
+            }
+            None => {
+                self.fields.insert(field_name.to_string(), field_value);
+            }
         }
     }
 

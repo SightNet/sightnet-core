@@ -35,17 +35,14 @@ impl Collection {
 
     pub fn commit(&mut self) {
         //iterate over fields
-        for i in 0..self.fields.len() {
+        for field in self.fields.iter_mut() {
             //iterate over documents
-            for j in 0..self.len() {
-                let doc = self.documents.get_mut(&(j as i32)).unwrap();
-                let value = doc.process_field(self.fields[i].name.as_str());
+            for doc in self.documents.iter_mut() {
+                let value = doc.1.process_field(field.name.as_str());
 
                 if let Some(FieldValue::String(_, tokens)) = value {
-                    let field = &mut self.fields[i];
-
                     for token in tokens {
-                        field.inverted_index.push(token.clone(), j as i32);
+                        field.inverted_index.push(token.clone(), *doc.0);
                     }
                 }
             }

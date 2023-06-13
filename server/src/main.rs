@@ -54,7 +54,7 @@ fn save_collections() {
 #[tokio::main]
 async fn main() {
     let collection_router =
-        Router::with_path("collection")
+        Router::with_path("col")
             .push(
                 Router::with_path("<collection_id>")
                     .get(collection::info)
@@ -69,7 +69,7 @@ async fn main() {
                             .get(collection::commit)
                     )
                     .push(
-                        Router::with_path("documents")
+                        Router::with_path("doc")
                             .put(document::create)
                             .push(
                                 Router::with_path("<document_id>")

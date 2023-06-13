@@ -56,16 +56,14 @@ pub async fn info(req: &mut Request) -> Result<ApiResult, ApiError> {
     let id = get_collection_id(req).await?;
     let collection = get_collection(id.clone()).await?;
     let collection = collection.lock().unwrap();
-    let json_fields: Vec<Value> = collection.fields.iter().map(|x: &Field| {
-        json!({
-                x.name.as_str(): x.value.to_string()
-            })
-    }).collect();
+    let mut json = json!({});
 
-    Ok(ApiResult::new(Some(json!({
-        "name": id,
-        "fields": json_fields
-    }))))
+    for field in &collection.fields {
+        json[&field.name] = json!(field.value.to_string());
+    }
+
+    json["id"] = json!(id);
+    Ok(ApiResult::new(Some(json)))
 }
 
 #[handler]
@@ -132,9 +130,10 @@ pub async fn search(req: &mut Request) -> Result<ApiResult, ApiError> {
 
     for result in results {
         let document = collection.get(result.0);
-        let mut json_fields = generate_fields_json(&document.unwrap().fields);
-        json_fields["rank"] =  json!(result.1);
-        json_results.push(json_fields);
+        let mut json = generate_fields_json(&document.unwrap().fields);
+        json["id"] = json!(result.0);
+        json["rank"] =  json!(result.1);
+        json_results.push(json);
     }
 
     Ok(ApiResult::new(Some(Value::Array(json_results))))
