@@ -90,8 +90,8 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
         collection.push_field(field.0, value);
     }
 
-    let cfg = CFG.lock().unwrap();
-    let path = PathBuf::from(cfg.directory.as_str()).join("db").join(format!("{}.bin", id.clone()));
+    let home = dirs::home_dir().unwrap();
+    let path = home.join("db").join(format!("{}.bin", id.clone()));
     collection.file_name = Some(path.to_str().unwrap().into());
 
     STATE.lock().unwrap().collections.insert(id, Arc::new(Mutex::new(collection)));

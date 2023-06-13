@@ -6,7 +6,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Cfg {
-    pub directory: String,
 }
 
 lazy_static! {

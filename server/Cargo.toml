@@ -11,6 +11,7 @@ salvo = { features = ["affix"] }
 tokio = { version = "1.27.0" }
 config = "0.13.3"
 sightnet_core = { path = "../lib" }
+dirs = "5.0.1"
 
 [[bin]]
 name = "server"

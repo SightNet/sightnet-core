@@ -18,15 +18,15 @@ mod api_result;
 mod config;
 
 fn create_files() {
-    let cfg = CFG.lock().unwrap();
-    let path = PathBuf::from(cfg.directory.as_str()).join("db");
+    let home = dirs::home_dir().unwrap();
+    let path = home.join("db");
 
     fs::create_dir_all(path).expect("Failed at creating files");
 }
 
 fn load_collections() {
-    let cfg = CFG.lock().unwrap();
-    let path = PathBuf::from(cfg.directory.as_str()).join("db");
+    let home = dirs::home_dir().unwrap();
+    let path = home.join("db");
     let files = fs::read_dir(path).unwrap();
 
     for file in files {
@@ -83,7 +83,7 @@ async fn main() {
     create_files();
     load_collections();
 
-    let background_thread = thread::spawn(move || {
+    let _ = thread::spawn(move || {
         loop {
             save_collections();
             thread::sleep(Duration::from_secs(5))
