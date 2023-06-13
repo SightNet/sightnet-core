@@ -132,7 +132,7 @@ pub async fn search(req: &mut Request) -> Result<ApiResult, ApiError> {
         let document = collection.get(result.0);
         let mut json = generate_fields_json(&document.unwrap().fields);
         json["id"] = json!(result.0);
-        json["rank"] =  json!(result.1);
+        json["rank"] = json!(result.1);
         json_results.push(json);
     }
 

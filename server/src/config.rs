@@ -5,8 +5,7 @@ use lazy_static::lazy_static;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct Cfg {
-}
+pub struct Cfg {}
 
 lazy_static! {
     pub static ref CFG: Mutex<Cfg> = Mutex::new(Config::builder()

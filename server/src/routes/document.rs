@@ -71,7 +71,7 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
     let mut document = Document::new();
     let fields = fields.unwrap();
 
-    for collection_field in &collection.lock().unwrap().fields{
+    for collection_field in &collection.lock().unwrap().fields {
         if !fields.iter().any(|x| *x.0 == collection_field.name) {
             return Err(ApiError::new(20, "You haven't all fields."));
         }
