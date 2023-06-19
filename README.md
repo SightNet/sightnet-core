@@ -1,4 +1,4 @@
-# Fast search engine
+# Search Engine
 
 ###### (like elastic/open/meili/typesense)
 
