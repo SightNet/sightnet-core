@@ -88,7 +88,7 @@ pub async fn create(req: &mut Request) -> Result<ApiResult, ApiError> {
                 FieldValue::Bool(value.as_bool().unwrap())
             }
             FieldValue::String(_, _) => {
-                FieldValue::String(value.as_str().unwrap().into(), vec![])
+                FieldValue::String(value.as_str().unwrap().into(), None)
             }
         };
 
